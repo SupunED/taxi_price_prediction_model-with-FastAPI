@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxi Price Predictor</title>
+    <!-- Use Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font import for a cleaner look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-8 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 sm:p-10 rounded-xl shadow-lg w-full max-w-2xl">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-800 mb-6">Taxi Price Prediction with FastAPI!</h1>
+        <p class="text-center text-gray-600 mb-8">Enter the trip details to get an estimated fare.</p>
+
+        <!-- The main form for user input -->
+        <form id="prediction-form" class="space-y-6" method="post">
+            <!-- Numerical inputs for various trip details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                    <label for="trip-distance" class="block text-gray-700 font-semibold mb-2">Trip Distance (km)</label>
+                    <input type="number" id="trip-distance" name="Trip_Distance_km" step="0.1" required
+                        class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="passenger-count" class="block text-gray-700 font-semibold mb-2">Passenger Count</label>
+                    <input type="number" id="passenger-count" name="Passenger_Count" required
+                        class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="trip-duration" class="block text-gray-700 font-semibold mb-2">Trip Duration (minutes)</label>
+                    <input type="number" id="trip-duration" name="Trip_Duration_Minutes" required
+                        class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="base-fare" class="block text-gray-700 font-semibold mb-2">Base Fare</label>
+                    <input type="number" id="base-fare" name="Base_Fare" step="0.01" required
+                        class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="per-km-rate" class="block text-gray-700 font-semibold mb-2">Rate Per Km</label>
+                    <input type="number" id="per-km-rate" name="Per_Km_Rate" step="0.01" required
+                        class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="per-minute-rate" class="block text-gray-700 font-semibold mb-2">Rate Per Minute</label>
+                    <input type="number" id="per-minute-rate" name="Per_Minute_Rate" step="0.01" required
+                        class="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <!-- Select menus for categorical features -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                    <label for="time-of-day" class="block text-gray-700 font-semibold mb-2">Time of Day</label>
+                    <select id="time-of-day" name="Time_of_Day" required
+                        class="w-full p-3 rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Morning">Morning</option>
+                        <option value="Afternoon">Afternoon</option>
+                        <option value="Evening">Evening</option>
+                        <option value="Night">Night</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="day-of-week" class="block text-gray-700 font-semibold mb-2">Day of Week</label>
+                    <select id="day-of-week" name="Day_of_Week" required
+                        class="w-full p-3 rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Weekday">Weekday</option>
+                        <option value="Weekend">Weekend</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="traffic-conditions" class="block text-gray-700 font-semibold mb-2">Traffic Conditions</label>
+                    <select id="traffic-conditions" name="Traffic_Conditions" required
+                        class="w-full p-3 rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Low">Low</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="weather" class="block text-gray-700 font-semibold mb-2">Weather</label>
+                    <select id="weather" name="Weather" required
+                        class="w-full p-3 rounded-md border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Clear">Clear</option>
+                        <option value="Rain">Rain</option>
+                        <option value="Snow">Snow</option>
+                        <option value="Stormy">Stormy</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit"
+                class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
+                Calculate Fare
+            </button>
+        </form>
+
+        <!-- Container for displaying the results or messages -->
+        <div id="result-container" class="mt-8 text-center">
+            <!-- The result will be displayed here -->
+            <div id="result-text" class="text-2xl sm:text-3xl font-bold text-gray-800"></div>
+            <!-- Loading indicator -->
+            <div id="loading-indicator" class="hidden mt-4 text-gray-500">Calculating...</div>
+            <!-- Error message -->
+            <div id="error-message" class="hidden mt-4 text-red-500 font-semibold"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('prediction-form');
+        const resultText = document.getElementById('result-text');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const errorMessage = document.getElementById('error-message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevent default form submission
+
+            // Show loading state and hide previous results/errors
+            loadingIndicator.classList.remove('hidden');
+            resultText.textContent = '';
+            errorMessage.classList.add('hidden');
+
+            // Collect form data and create the JSON payload
+            const formData = new FormData(form);
+            const payload = {};
+            formData.forEach((value, key) => {
+                // Convert numerical values to numbers
+                if (['Trip_Distance_km', 'Passenger_Count', 'Base_Fare', 'Per_Km_Rate', 'Per_Minute_Rate', 'Trip_Duration_Minutes'].includes(key)) {
+                    payload[key] = parseFloat(value);
+                } else {
+                    payload[key] = value;
+                }
+            });
+
+            try {
+                // Make the POST request to the FastAPI endpoint
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // Parse the JSON response
+                const result = await response.json();
+
+                if (response.ok) {
+                    // If the response is successful, display the predicted price
+                    resultText.textContent = `Estimated Fare: $${result.predicted_price.toFixed(2)}`;
+                    errorMessage.classList.add('hidden');
+                } else {
+                    // Handle API errors
+                    errorMessage.textContent = result.error || 'An unknown error occurred.';
+                    errorMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                // Handle network errors
+                errorMessage.textContent = 'Network error. Please check the server connection.';
+                errorMessage.classList.remove('hidden');
+                console.error('Fetch error:', error);
+            } finally {
+                // Hide the loading indicator regardless of success or failure
+                loadingIndicator.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
